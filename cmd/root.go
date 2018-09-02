@@ -16,8 +16,12 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"time"
 
-	homedir "github.com/mitchellh/go-homedir"
+	"github.com/mitchellh/go-homedir"
+	"github.com/sirupsen/logrus"
+	"github.com/solcates/broadcast"
+	"github.com/solcates/gobwa/pkg/bwa"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -36,7 +40,46 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
+	Run: func(cmd *cobra.Command, args []string) {
+		// See if we got a target IP/HOST from the CLI
+
+		var targetSpa string
+		if len(args) != 1 {
+
+			bc := broadcast.NewUDPBroadcaster(30303, "Discovery: Who is out there?")
+			spas, err := bc.Discover()
+			if err != nil {
+				logrus.Fatal(err)
+			}
+			switch len(spas) {
+			case 0:
+				logrus.Fatal("No SPA Found on network.  Check that we are on the same WIFI AP as spa?")
+			case 1:
+				targetSpa = spas[0]
+			default:
+				logrus.Warn("Found more than 1 Spa on your network.  Rerun command with one of these IP addresses.")
+				for _, spa := range spas {
+					logrus.Warn(spa)
+				}
+			}
+		} else {
+			targetSpa = args[0]
+		}
+
+		// Setup and use the client
+		client := bwa.NewBalbowClient(targetSpa, 4257)
+		client.Connect()
+		client.RequestConfig()
+
+		for {
+			select {
+			case <-time.After(5 * time.Second):
+				break
+
+			}
+		}
+
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -48,7 +91,7 @@ func Execute() {
 	}
 }
 
-func init() { 
+func init() {
 	cobra.OnInitialize(initConfig)
 
 	// Here you will define your flags and configuration settings.
