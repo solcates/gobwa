@@ -1,15 +1,19 @@
 package bwa
 
 import (
+	"net"
 	"reflect"
 	"testing"
+	"time"
 )
 
 func TestNewBalbowClient(t *testing.T) {
 	type args struct {
-		host string
-		port int
+		host   string
+		port   int
+		cancel chan bool
 	}
+	c := make(chan bool)
 	tests := []struct {
 		name string
 		args args
@@ -18,18 +22,22 @@ func TestNewBalbowClient(t *testing.T) {
 		{
 			name: "ok",
 			args: args{
-				host: "172.16.1.21",
-				port: 4257,
+				host:   "172.16.1.21",
+				port:   4257,
+				cancel: c,
 			},
 			want: &BalbowClient{
-				host: "172.16.1.21",
-				port: 4257,
+				host:   "172.16.1.21",
+				port:   4257,
+				cancel: c,
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewBalbowClient(tt.args.host, tt.args.port); !reflect.DeepEqual(got, tt.want) {
+			got := NewBalbowClient(tt.args.host, tt.args.port)
+			got.cancel = tt.args.cancel
+			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewBalbowClient() = %v, want %v", got, tt.want)
 			}
 		})
@@ -89,6 +97,7 @@ func TestBalbowClient_Close(t *testing.T) {
 
 func TestBalbowClient_SendMessage(t *testing.T) {
 	bc := NewBalbowClient("172.16.1.21", 4257)
+	bc.conn = &MockServer{}
 	tests := []struct {
 		name    string
 		message string
@@ -112,11 +121,17 @@ func TestBalbowClient_SendMessage(t *testing.T) {
 }
 
 func TestBalbowClient_poll(t *testing.T) {
+	bc := NewBalbowClient("172.16.1.21", 4257)
+	bc.conn = &MockServer{}
 	tests := []struct {
 		name string
 		bc   *BalbowClient
 	}{
 		// TODO: Add test cases.
+		{
+			name: "ok",
+			bc:   bc,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -153,11 +168,16 @@ func Test_prepMessage(t *testing.T) {
 }
 
 func TestBalbowClient_RequestConfig(t *testing.T) {
+	bc := NewBalbowClient("172.16.1.21", 4257)
+	bc.conn = &MockServer{}
 	tests := []struct {
 		name string
 		bc   *BalbowClient
 	}{
-		// TODO: Add test cases.
+		{
+			name: "ok",
+			bc:   bc,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -187,11 +207,16 @@ func Test_chr(t *testing.T) {
 }
 
 func TestBalbowClient_RequestControlInfo(t *testing.T) {
+	bc := NewBalbowClient("172.16.1.21", 4257)
+	bc.conn = &MockServer{}
 	tests := []struct {
 		name string
 		bc   *BalbowClient
 	}{
-		// TODO: Add test cases.
+		{
+			name: "ok",
+			bc:   bc,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -228,6 +253,58 @@ func TestBalbowClient_ToggleItem(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.bc.ToggleItem(tt.args.item)
+		})
+	}
+}
+
+type MockServer struct {
+	data []byte
+}
+
+func (ms *MockServer) Read(b []byte) (n int, err error) {
+	b = append(b, ms.data...)
+	return
+}
+
+func (ms *MockServer) Write(b []byte) (n int, err error) {
+	ms.data = b
+	return
+}
+
+func (ms *MockServer) Close() error {
+	panic("implement me")
+}
+
+func (ms *MockServer) LocalAddr() net.Addr {
+	panic("implement me")
+}
+
+func (ms *MockServer) RemoteAddr() net.Addr {
+	panic("implement me")
+}
+
+func (ms *MockServer) SetDeadline(t time.Time) error {
+	panic("implement me")
+}
+
+func (ms *MockServer) SetReadDeadline(t time.Time) error {
+	panic("implement me")
+}
+
+func (ms *MockServer) SetWriteDeadline(t time.Time) error {
+	panic("implement me")
+}
+
+func TestBalbowClient_RequestControlConfig(t *testing.T) {
+	tests := []struct {
+		name string
+		bc   *BalbowClient
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.bc.RequestControlConfig()
 		})
 	}
 }

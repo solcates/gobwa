@@ -1,12 +1,14 @@
 package bwa
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gdamore/encoding"
 	"github.com/sigurn/crc8"
 	"github.com/sirupsen/logrus"
 	"log"
 	"net"
+	"time"
 )
 
 var defaultPort = 4257
@@ -21,9 +23,10 @@ type Client interface {
 
 //BalbowClient implements a TCP Socket to port 4257 on a Balboa device.
 type BalbowClient struct {
-	host string
-	port int
-	conn net.Conn
+	host   string
+	port   int
+	conn   net.Conn
+	cancel chan bool
 }
 
 //NewBalbowClient returns a default client
@@ -31,6 +34,9 @@ func NewBalbowClient(host string, port int) *BalbowClient {
 	bc := &BalbowClient{
 		host: host,
 		port: port,
+	}
+	if bc.cancel == nil {
+		bc.cancel = make(chan bool)
 	}
 	if bc.port == 0 {
 		bc.port = defaultPort
@@ -62,18 +68,22 @@ func (bc *BalbowClient) Connect() (err error) {
 	return
 }
 
-func (bc *BalbowClient) poll() {
+func (bc *BalbowClient) poll() error {
 	for {
+		select {
+		case <-bc.cancel:
+			return nil
+		case <-time.After(5 * time.Second):
+			return errors.New("timed out")
+		}
 		buf := make([]byte, 128)
 		_, err := bc.conn.Read(buf)
 		if err != nil {
-			return
+			return err
 		}
-		//fmt.Println("N: %v", n)
-		//fmt.Println("read: % x", buf)
 		Parse(buf)
 	}
-	return
+	return nil
 }
 
 //SendMessage serializes and writes the message to the client's open socket.
@@ -131,23 +141,29 @@ func (bc *BalbowClient) Close() (err error) {
 }
 
 //RequestConfig resquests the config from the SPA.
-//
-// if the configuraiton i
 func (bc *BalbowClient) RequestConfig() {
 	bc.SendMessage("\x0a\xbf\x04")
 }
 
 //RequestControlInfo reqeustes the Control INfo fo rthe maction
 func (bc *BalbowClient) RequestControlInfo() {
-	logrus.Debug("RCI")
+	logrus.Debug("RequestControlInfo")
 	bc.SendMessage("\x0a\xbf\x22\x02\x00\x00")
 }
 
+//RequestControlConfig request the control config
+func (bc *BalbowClient) RequestControlConfig() {
+	logrus.Debug("RequestControlConfig")
+	bc.SendMessage("\x0a\xbf\x22")
+}
+
+//ToggleLight turns on/off the light
 func (bc *BalbowClient) ToggleLight() {
 	logrus.Debug("ToggleLight")
 	bc.ToggleItem("\x11\x00")
 }
 
+//ToggleItem toggles an item on/off
 func (bc *BalbowClient) ToggleItem(item string) {
 	bc.SendMessage("x0a\xbf\x11" + item)
 }

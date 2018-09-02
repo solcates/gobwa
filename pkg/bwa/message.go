@@ -26,7 +26,8 @@ func Parse(bin []byte) (message messages.Message, err error) {
 	//length := bin[1]
 
 	messaegType := bin[2:5]
-
+	//messageLength := bin[1]
+	messagePayload := bin[5 : len(bin)-2]
 	//fmt.Printf("Length: %v\n", length)
 	//fmt.Printf("Type: %v\n", messaegType)
 
@@ -46,7 +47,7 @@ func Parse(bin []byte) (message messages.Message, err error) {
 	default:
 		logrus.Errorf("Unknown Message Type: %x", mt)
 	}
-	err = message.Parse(bin)
+	err = message.Parse(messagePayload)
 
 	return
 }

@@ -33,18 +33,18 @@ type Status struct {
 
 //Parse the inbound array of bytes for it's status updates
 func (s *Status) Parse(bin []byte) (err error) {
-	if bin[6] != 0 {
+	if bin[1] != 0 {
 		s.priming = true
 	}
-	//Currenttempt
-	s.currentTemp = bin[7]
+	//Currenttemp is the
+	s.currentTemp = bin[2]
 
 	// hours and minutes
-	s.hours = bin[8]
-	s.minutes = bin[9]
+	s.hours = bin[3]
+	s.minutes = bin[4]
 
-	// heating mode
-	switch bin[10] {
+	// Heating mode
+	switch bin[5] {
 	case 0:
 		s.heatingMode = Ready
 	case 1:
@@ -56,22 +56,20 @@ func (s *Status) Parse(bin []byte) (err error) {
 	}
 
 	// Statuses
-	s.tempScale = (bin[14]&0x01 == 0x01)
-	s.twentyFourHour = (bin[14]&0x02 == 0x02)
-	s.heating = (bin[15]&0x30 != 0)
-	s.highRange = (bin[15]&0x04 == 0x04)
-	s.pump1 = bin[16] & 0x03
-	s.pump2 = (bin[16] / 4) & 0x03
-	s.cp = (bin[18]&0x02 == 0x02)
-	s.light = (bin[19]&0x03 == 0x03)
-	s.setTemp = bin[25]
+	s.tempScale = (bin[9]&0x01 == 0x01)
+	s.twentyFourHour = (bin[9]&0x02 == 0x02)
+	s.heating = (bin[10]&0x30 != 0)
+	s.highRange = (bin[10]&0x04 == 0x04)
+	s.pump1 = bin[11] & 0x03
+	s.pump2 = (bin[11] / 4) & 0x03
+	s.cp = (bin[13]&0x02 == 0x02)
+	s.light = (bin[14]&0x03 == 0x03)
+	s.setTemp = bin[20]
 
 	// if Celsius do the divide
 	if s.tempScale {
 		s.currentTemp = s.currentTemp / 2.0
 		s.setTemp = s.setTemp / 2.0
 	}
-	//spew.Dump(s)
-	//logrus.Infof("Temp: %v", s.currentTemp)
 	return
 }
