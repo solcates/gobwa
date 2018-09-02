@@ -165,3 +165,69 @@ func TestBalbowClient_RequestConfig(t *testing.T) {
 		})
 	}
 }
+
+func Test_chr(t *testing.T) {
+	type args struct {
+		in string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantOut string
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if gotOut := chr(tt.args.in); gotOut != tt.wantOut {
+				t.Errorf("chr() = %v, want %v", gotOut, tt.wantOut)
+			}
+		})
+	}
+}
+
+func TestBalbowClient_RequestControlInfo(t *testing.T) {
+	tests := []struct {
+		name string
+		bc   *BalbowClient
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.bc.RequestControlInfo()
+		})
+	}
+}
+
+func TestBalbowClient_ToggleLight(t *testing.T) {
+	tests := []struct {
+		name string
+		bc   *BalbowClient
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.bc.ToggleLight()
+		})
+	}
+}
+
+func TestBalbowClient_ToggleItem(t *testing.T) {
+	type args struct {
+		item string
+	}
+	tests := []struct {
+		name string
+		bc   *BalbowClient
+		args args
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.bc.ToggleItem(tt.args.item)
+		})
+	}
+}
