@@ -46,24 +46,17 @@ func TestNewBalbowClient(t *testing.T) {
 
 func TestBalbowClient_Connect(t *testing.T) {
 	// Setup a Mock Server
-	var bs *BalboaServer
-	go func() {
-		bs = NewBalboaServer()
-		bs.Run()
-	}()
-
-	defer bs.Close()
 
 	tests := []struct {
 		name    string
 		bc      *BalbowClient
 		wantErr bool
 	}{
-		//{
-		//	name:    "ok",
-		//	bc:      NewBalbowClient("172.16.1.21", 4257),
-		//	wantErr: false,
-		//},
+		{
+			name:    "ok",
+			bc:      NewBalbowClient("172.16.1.21", 4257),
+			wantErr: false,
+		},
 	}
 	// run server in background
 	for _, tt := range tests {
