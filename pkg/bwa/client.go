@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gdamore/encoding"
 	"github.com/sigurn/crc8"
+	"github.com/sirupsen/logrus"
 	"log"
 	"net"
 )
@@ -116,8 +117,6 @@ func prepMessage(message string) string {
 	checksum := crc8.Checksum([]byte(fullMessage), table)
 	checksumChar := chr(string(checksum))
 	finalMessage := fmt.Sprintf("%s%s%s%s", start, fullMessage, checksumChar, end)
-	fmt.Printf("% x\n", finalMessage)
-
 	return finalMessage
 }
 
@@ -136,4 +135,19 @@ func (bc *BalbowClient) Close() (err error) {
 // if the configuraiton i
 func (bc *BalbowClient) RequestConfig() {
 	bc.SendMessage("\x0a\xbf\x04")
+}
+
+//RequestControlInfo reqeustes the Control INfo fo rthe maction
+func (bc *BalbowClient) RequestControlInfo() {
+	logrus.Debug("RCI")
+	bc.SendMessage("\x0a\xbf\x22\x02\x00\x00")
+}
+
+func (bc *BalbowClient) ToggleLight() {
+	logrus.Debug("ToggleLight")
+	bc.ToggleItem("\x11\x00")
+}
+
+func (bc *BalbowClient) ToggleItem(item string) {
+	bc.SendMessage("x0a\xbf\x11" + item)
 }

@@ -27,6 +27,7 @@ import (
 )
 
 var cfgFile string
+var debug bool
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
@@ -42,6 +43,10 @@ to quickly create a Cobra application.`,
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
 		// See if we got a target IP/HOST from the CLI
+
+		if debug {
+			logrus.SetLevel(logrus.DebugLevel)
+		}
 
 		var targetSpa string
 		if len(args) != 1 {
@@ -70,10 +75,14 @@ to quickly create a Cobra application.`,
 		client := bwa.NewBalbowClient(targetSpa, 4257)
 		client.Connect()
 		client.RequestConfig()
-
+		go func() {
+		}()
 		for {
 			select {
 			case <-time.After(5 * time.Second):
+				client.RequestControlInfo()
+				client.ToggleLight()
+
 				break
 
 			}
@@ -101,7 +110,7 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	RootCmd.Flags().BoolVarP(&debug, "debug", "d", false, "Debug mode")
 }
 
 // initConfig reads in config file and ENV variables if set.

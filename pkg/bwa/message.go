@@ -40,6 +40,9 @@ func Parse(bin []byte) (message messages.Message, err error) {
 	case "\xff\xaf\x13":
 		logrus.Debug("Returning Status")
 		message = &messages.Status{}
+	case "\x0a\xbf\x24":
+		logrus.Debugf("Returning ControlInfo")
+		message = &messages.ControlInfoResponse{}
 	default:
 		logrus.Errorf("Unknown Message Type: %x", mt)
 	}

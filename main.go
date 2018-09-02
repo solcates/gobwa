@@ -13,8 +13,14 @@
 
 package main
 
-import "github.com/solcates/gobwa/cmd"
+import (
+	"github.com/sirupsen/logrus"
+	"github.com/solcates/gobwa/cmd"
+)
 
 func main() {
+	logrus.SetFormatter(&logrus.TextFormatter{
+		ForceColors: true,
+	})
 	cmd.Execute()
 }
