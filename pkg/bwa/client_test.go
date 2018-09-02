@@ -46,7 +46,13 @@ func TestNewBalbowClient(t *testing.T) {
 
 func TestBalbowClient_Connect(t *testing.T) {
 	// Setup a Mock Server
+	bc := NewBalbowClient("127.0.0.1", 4257)
+	go func() {
+		bs := &BalboaServer{}
+		defer bs.Close()
+		bs.Run()
 
+	}()
 	tests := []struct {
 		name    string
 		bc      *BalbowClient
@@ -54,7 +60,7 @@ func TestBalbowClient_Connect(t *testing.T) {
 	}{
 		{
 			name:    "ok",
-			bc:      NewBalbowClient("172.16.1.21", 4257),
+			bc:      bc,
 			wantErr: false,
 		},
 	}

@@ -1,7 +1,6 @@
 package bwa
 
 import (
-	"net"
 	"reflect"
 	"testing"
 )
@@ -54,19 +53,16 @@ func TestBalboaServer_Close(t *testing.T) {
 }
 
 func TestBalboaServer_handlerequest(t *testing.T) {
-	type args struct {
-		conn net.Conn
-	}
+
 	tests := []struct {
 		name string
 		bs   *BalboaServer
-		args args
 	}{
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.bs.handlerequest(tt.args.conn)
+			tt.bs.handlerequest()
 		})
 	}
 }
