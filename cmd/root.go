@@ -20,7 +20,6 @@ import (
 
 	"github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
-	"github.com/solcates/broadcast"
 	"github.com/solcates/gobwa/pkg/bwa"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -50,7 +49,8 @@ to quickly create a Cobra application.`,
 
 		var targetSpa string
 		if len(args) != 1 {
-			bc := broadcast.NewUDPBroadcaster(30303, "Discovery: Who is out there?")
+			//bc := broadcast.NewUDPBroadcaster(30303, "Discovery: Who is out there?")
+			bc := bwa.NewDiscoverer()
 			spas, err := bc.Discover()
 			if err != nil {
 				logrus.Fatal(err)

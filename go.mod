@@ -14,4 +14,6 @@ require (
 	github.com/solcates/broadcast v0.0.0-20180901155517-85347da2374d
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/viper v1.1.0
+	golang.org/x/sys v0.0.0-20180903190138-2b024373dcd9 // indirect
+	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 )
