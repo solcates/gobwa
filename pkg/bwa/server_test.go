@@ -5,22 +5,6 @@ import (
 	"testing"
 )
 
-func TestNewBalboaServer(t *testing.T) {
-	tests := []struct {
-		name string
-		want *BalboaServer
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := NewBalboaServer(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewBalboaServer() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func TestBalboaServer_Run(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -67,16 +51,30 @@ func TestBalboaServer_handlerequest(t *testing.T) {
 	}
 }
 
-func TestBalboaServer_SendMessage(t *testing.T) {
+func TestNewBalboaServer(t *testing.T) {
+	type args struct {
+		host string
+		port int
+	}
 	tests := []struct {
 		name string
-		bs   *BalboaServer
+		args args
+		want *BalboaServer
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Default",
+			args: args{},
+			want: &BalboaServer{
+				host: "127.0.0.1",
+				port: 4257,
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.bs.SendMessage()
+			if got := NewBalboaServer(tt.args.host, tt.args.port); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewBalboaServer() = %v, want %v", got, tt.want)
+			}
 		})
 	}
 }

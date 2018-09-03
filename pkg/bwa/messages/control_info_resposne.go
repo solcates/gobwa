@@ -4,7 +4,12 @@ package messages
 type ControlInfoResponse struct {
 }
 
-//Parse will populate the struct with known mappings
+//Parse parses the []byte slice into this struct
 func (cr *ControlInfoResponse) Parse(bin []byte) (err error) {
+	return
+}
+
+//Serialize serializes the struct into a []byte slice
+func (cr *ControlInfoResponse) Serialize() (out []byte, err error) {
 	return
 }

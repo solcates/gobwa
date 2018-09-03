@@ -22,28 +22,24 @@ func Parse(bin []byte) (message messages.Message, err error) {
 		return
 	}
 
-	// message type is the 3 numbers of offset 2-4 (skip the first 2)
-	//length := bin[1]
-
-	messaegType := bin[2:5]
-	//messageLength := bin[1]
+	messageType := bin[2:5]
 	messagePayload := bin[5 : len(bin)-2]
-	//fmt.Printf("Length: %v\n", length)
-	//fmt.Printf("Type: %v\n", messaegType)
-
-	mt := string(messaegType)
+	mt := string(messageType)
 	switch mt {
-	case "\x0a\xbf\x94":
-		logrus.Debug("Returning ConfigResponse")
-		message = &messages.ConfigResponse{}
 
-		return
+	case "\x0a\xbf\x94":
+		logrus.Debug("Received ConfigResponse")
+		message = &messages.ConfigResponse{}
 	case "\xff\xaf\x13":
-		logrus.Debug("Returning Status")
+		logrus.Debug("Received Status")
 		message = &messages.Status{}
 	case "\x0a\xbf\x24":
-		logrus.Debugf("Returning ControlInfo")
+		logrus.Debugf("Received ControlInfoResponse")
 		message = &messages.ControlInfoResponse{}
+	case "\x0a\xbf\x23":
+		logrus.Debugf("Received FilterCycleResponse")
+		message = &messages.FilterCycleResponse{}
+
 	default:
 		logrus.Errorf("Unknown Message Type: %x", mt)
 	}

@@ -47,11 +47,11 @@ func TestNewBalbowClient(t *testing.T) {
 func TestBalbowClient_Connect(t *testing.T) {
 	// Setup a Mock Server
 	bc := NewBalbowClient("127.0.0.1", 4257)
+	//bc.conn = &MockServer{}
 	go func() {
-		bs := &BalboaServer{}
+		bs := NewBalboaServer("127.0.0.1", 4257)
 		defer bs.Close()
 		bs.Run()
-
 	}()
 	tests := []struct {
 		name    string
@@ -65,10 +65,10 @@ func TestBalbowClient_Connect(t *testing.T) {
 		},
 	}
 	// run server in background
+	time.Sleep(1 * time.Second)
 	for _, tt := range tests {
 
 		t.Run(tt.name, func(t *testing.T) {
-			//
 
 			if err := tt.bc.Connect(); (err != nil) != tt.wantErr {
 				t.Errorf("BalbowClient.Connect() error = %v, wantErr %v", err, tt.wantErr)
@@ -122,6 +122,10 @@ func TestBalbowClient_SendMessage(t *testing.T) {
 func TestBalbowClient_poll(t *testing.T) {
 	bc := NewBalbowClient("172.16.1.21", 4257)
 	bc.conn = &MockServer{}
+	go func() {
+		time.Sleep(200 * time.Millisecond)
+		bc.cancel <- true
+	}()
 	tests := []struct {
 		name string
 		bc   *BalbowClient

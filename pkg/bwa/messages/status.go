@@ -15,61 +15,66 @@ const (
 
 //Status represents current status responses sent by the spa
 type Status struct {
-	currentTemp    uint8
-	priming        bool
-	heatingMode    uint8
-	tempScale      bool
-	twentyFourHour bool
-	heating        bool
-	highRange      bool
-	pump1          uint8
-	pump2          uint8
-	cp             bool
-	light          bool
-	hours          uint8
-	minutes        uint8
-	setTemp        uint8
+	CurrentTemp    uint8
+	Priming        bool
+	HeatingMode    uint8
+	TempScale      bool
+	TwentyFourHour bool
+	Heating        bool
+	HighRange      bool
+	Pump1          uint8
+	Pump2          uint8
+	Cp             bool
+	Light          bool
+	Hours          uint8
+	Minutes        uint8
+	SetTemp        uint8
 }
 
-//Parse the inbound array of bytes for it's status updates
+//Parse parses the []byte slice into this struct
 func (s *Status) Parse(bin []byte) (err error) {
 	if bin[1] != 0 {
-		s.priming = true
+		s.Priming = true
 	}
 	//Currenttemp is the
-	s.currentTemp = bin[2]
+	s.CurrentTemp = bin[2]
 
 	// hours and minutes
-	s.hours = bin[3]
-	s.minutes = bin[4]
+	s.Hours = bin[3]
+	s.Minutes = bin[4]
 
 	// Heating mode
 	switch bin[5] {
 	case 0:
-		s.heatingMode = Ready
+		s.HeatingMode = Ready
 	case 1:
-		s.heatingMode = Rest
+		s.HeatingMode = Rest
 	case 2:
-		s.heatingMode = ReadyInRest
+		s.HeatingMode = ReadyInRest
 	default:
 		return errors.New("unknown heating mode")
 	}
 
 	// Statuses
-	s.tempScale = (bin[9]&0x01 == 0x01)
-	s.twentyFourHour = (bin[9]&0x02 == 0x02)
-	s.heating = (bin[10]&0x30 != 0)
-	s.highRange = (bin[10]&0x04 == 0x04)
-	s.pump1 = bin[11] & 0x03
-	s.pump2 = (bin[11] / 4) & 0x03
-	s.cp = (bin[13]&0x02 == 0x02)
-	s.light = (bin[14]&0x03 == 0x03)
-	s.setTemp = bin[20]
+	s.TempScale = (bin[9]&0x01 == 0x01)
+	s.TwentyFourHour = (bin[9]&0x02 == 0x02)
+	s.Heating = (bin[10]&0x30 != 0)
+	s.HighRange = (bin[10]&0x04 == 0x04)
+	s.Pump1 = bin[11] & 0x03
+	s.Pump2 = (bin[11] / 4) & 0x03
+	s.Cp = (bin[13]&0x02 == 0x02)
+	s.Light = (bin[14]&0x03 == 0x03)
+	s.SetTemp = bin[20]
 
 	// if Celsius do the divide
-	if s.tempScale {
-		s.currentTemp = s.currentTemp / 2.0
-		s.setTemp = s.setTemp / 2.0
+	if s.TempScale {
+		s.CurrentTemp = s.CurrentTemp / 2.0
+		s.SetTemp = s.SetTemp / 2.0
 	}
+	return
+}
+
+//Serialize serialzes the struct to a []byte slice
+func (s *Status) Serialize() (out []byte, err error) {
 	return
 }

@@ -1,14 +1,14 @@
 package bwa
 
 import (
-	"errors"
 	"fmt"
 	"github.com/gdamore/encoding"
 	"github.com/sigurn/crc8"
 	"github.com/sirupsen/logrus"
 	"log"
 	"net"
-	"time"
+	"os"
+	"os/signal"
 )
 
 var defaultPort = 4257
@@ -38,6 +38,12 @@ func NewBalbowClient(host string, port int) *BalbowClient {
 	if bc.cancel == nil {
 		bc.cancel = make(chan bool)
 	}
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	go func() {
+		<-c
+		bc.cancel <- true
+	}()
 	if bc.port == 0 {
 		bc.port = defaultPort
 	}
@@ -73,8 +79,7 @@ func (bc *BalbowClient) poll() error {
 		select {
 		case <-bc.cancel:
 			return nil
-		case <-time.After(5 * time.Second):
-			return errors.New("timed out")
+		default:
 		}
 		buf := make([]byte, 128)
 		_, err := bc.conn.Read(buf)
@@ -142,24 +147,31 @@ func (bc *BalbowClient) Close() (err error) {
 
 //RequestConfig resquests the config from the SPA.
 func (bc *BalbowClient) RequestConfig() {
+	logrus.Debug("Sent RequestConfig")
 	bc.SendMessage("\x0a\xbf\x04")
+}
+
+//RequestFilterConfig request the filter configuration
+func (bc *BalbowClient) RequestFilterConfig() {
+	logrus.Debug("Sent RequestFilterConfig")
+	bc.SendMessage("\x0a\xbf\x22")
 }
 
 //RequestControlInfo reqeustes the Control INfo fo rthe maction
 func (bc *BalbowClient) RequestControlInfo() {
-	logrus.Debug("RequestControlInfo")
+	logrus.Debug("Sent RequestControlInfo")
 	bc.SendMessage("\x0a\xbf\x22\x02\x00\x00")
 }
 
 //RequestControlConfig request the control config
 func (bc *BalbowClient) RequestControlConfig() {
-	logrus.Debug("RequestControlConfig")
+	logrus.Debug("Sent RequestControlConfig")
 	bc.SendMessage("\x0a\xbf\x22")
 }
 
 //ToggleLight turns on/off the light
 func (bc *BalbowClient) ToggleLight() {
-	logrus.Debug("ToggleLight")
+	logrus.Debug("Sent ToggleLight")
 	bc.ToggleItem("\x11\x00")
 }
 

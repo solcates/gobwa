@@ -50,7 +50,6 @@ to quickly create a Cobra application.`,
 
 		var targetSpa string
 		if len(args) != 1 {
-
 			bc := broadcast.NewUDPBroadcaster(30303, "Discovery: Who is out there?")
 			spas, err := bc.Discover()
 			if err != nil {
@@ -68,6 +67,7 @@ to quickly create a Cobra application.`,
 				}
 			}
 		} else {
+			//
 			targetSpa = args[0]
 		}
 
@@ -75,14 +75,11 @@ to quickly create a Cobra application.`,
 		client := bwa.NewBalbowClient(targetSpa, 4257)
 		client.Connect()
 		client.RequestConfig()
-		go func() {
-		}()
 		for {
 			select {
 			case <-time.After(5 * time.Second):
-				client.RequestControlInfo()
+				//client.RequestControlInfo()
 				client.ToggleLight()
-
 				break
 
 			}

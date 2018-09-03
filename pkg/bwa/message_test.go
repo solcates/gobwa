@@ -1,11 +1,16 @@
 package bwa
 
 import (
+	"github.com/sirupsen/logrus"
 	"reflect"
 	"testing"
 
 	"github.com/solcates/gobwa/pkg/bwa/messages"
 )
+
+func init() {
+	logrus.SetLevel(logrus.DebugLevel)
+}
 
 func TestParse(t *testing.T) {
 	type args struct {
@@ -31,8 +36,23 @@ func TestParse(t *testing.T) {
 					0xcb, 0x7e,
 				},
 			},
-			wantMessage: nil,
-			wantErr:     false,
+			wantMessage: &messages.Status{
+				CurrentTemp:    103,
+				Priming:        false,
+				HeatingMode:    0,
+				TempScale:      false,
+				TwentyFourHour: false,
+				Heating:        false,
+				HighRange:      true,
+				Pump1:          1,
+				Pump2:          0,
+				Cp:             false,
+				Light:          false,
+				Hours:          10,
+				Minutes:        47,
+				SetTemp:        102,
+			},
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
